@@ -5,6 +5,9 @@ import com.example.projectjava.DTO.TeacherResponse;
 import com.example.projectjava.Model.Teacher;
 import com.example.projectjava.Repository.TeacherRepository;
 import com.example.projectjava.Service.TeacherService;
+import com.example.projectjava.response.SuccessResponse;
+import com.example.projectjava.util.ApiResponseUtil;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
@@ -36,29 +39,37 @@ public class TeacherController3 {
     }
 
     @GetMapping
-    public Page<TeacherResponse> getAll(
+    public ResponseEntity<SuccessResponse> getAll(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(required = false) String name,
             @RequestParam(defaultValue = "DESC") Sort.Direction direction
     ){
-        return teacherService.filter(page, size, name, direction);
+        return ResponseEntity.ok(
+                ApiResponseUtil.success(HttpStatus.OK, teacherService.filter(page, size, name, direction))
+        );
     }
 
     @PostMapping
-    public ResponseEntity<TeacherResponse> save(@RequestBody TeacherRequest teacherRequest){
-        return ResponseEntity.status(HttpStatus.CREATED).body(teacherService.create(teacherRequest));
+    public ResponseEntity<SuccessResponse> save(@Valid @RequestBody TeacherRequest teacherRequest){
+        return ResponseEntity.ok(
+                ApiResponseUtil.success(HttpStatus.CREATED, teacherService.create(teacherRequest))
+        );
     }
 
     @PutMapping
-    public ResponseEntity<TeacherResponse> update(@RequestBody TeacherRequest teacherRequest, @PathVariable Long id){
-        return ResponseEntity.status(HttpStatus.OK).body(teacherService.update(teacherRequest, id));
+    public ResponseEntity<SuccessResponse> update(@Valid @RequestBody TeacherRequest teacherRequest, @PathVariable Long id){
+        return ResponseEntity.ok(
+                ApiResponseUtil.success(HttpStatus.OK, teacherService.update(teacherRequest, id))
+        );
     }
 
     @DeleteMapping
-    public ResponseEntity<Void> delete(@PathVariable Long id){
+    public ResponseEntity<SuccessResponse<Void>> delete(@PathVariable Long id){
         teacherService.delete(id);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
+        return ResponseEntity.ok(
+                ApiResponseUtil.success(HttpStatus.NO_CONTENT)
+        );
     }
 
 }

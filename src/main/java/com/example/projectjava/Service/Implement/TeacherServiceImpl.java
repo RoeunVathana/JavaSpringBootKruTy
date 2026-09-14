@@ -18,6 +18,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import jakarta.persistence.criteria.Predicate;
 
@@ -64,7 +65,17 @@ public class TeacherServiceImpl implements TeacherService {
 
     @Override
     public TeacherResponse create(TeacherRequest teacherRequest) {
-        return teacherRepository.save(teacherRequest.toEntity()).toResponse();
+        if(teacherRequest.getCardRequest() == null){
+            throw  new CustomException(HttpStatus.BAD_REQUEST, "Card is required");
+        }
+
+        String code = UUID.randomUUID().toString()
+                .replace("-", "")
+                .substring(0, 12);
+        Teacher teacher = teacherRequest.toEntity(code);
+        return teacherRepository.save(teacher).toResponse();
+
+
     }
 
     @Override
@@ -74,6 +85,8 @@ public class TeacherServiceImpl implements TeacherService {
         teacher.setGender(teacherRequest.getGender());
         teacher.setAge(teacherRequest.getAge());
         teacher.setClassTeach(teacherRequest.getClassTeach());
+        teacher.getCard().setExpiryDate(teacherRequest.getCardRequest().getExpiryDate());
+        teacher.getCard().setIssueDate(teacherRequest.getCardRequest().getIssueDate());
         return teacherRepository.save(teacher).toResponse();
     }
 
