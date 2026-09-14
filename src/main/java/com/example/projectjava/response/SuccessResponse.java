@@ -22,5 +22,4 @@ public class SuccessResponse<T> {
     private LocalDateTime localDateTime;
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private T payload;
-
 }

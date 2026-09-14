@@ -30,11 +30,15 @@ public class Card {
     @OneToOne(mappedBy = "card")
     private Student student;
 
+    @OneToOne(mappedBy = "card")
+    private Teacher teacher;
+
     public Card(LocalDate issueDate, LocalDate expiryDate, String code) {
         this.issueDate = issueDate;
         this.expiryDate = expiryDate;
         this.code = code;
     }
+
 
     public CardResponse toResponse() {
         return new CardResponse(id, issueDate, expiryDate, code);

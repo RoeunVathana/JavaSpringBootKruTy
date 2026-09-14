@@ -21,23 +21,32 @@ public class Teacher {
     private Long age;
     private String classTeach;
 
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinColumn(name = "card_id", referencedColumnName = "id")
+    private Card card;
 
 
 
-    public Teacher(String name, String gender, Long age, String classTeach) {
+
+    public Teacher(String name, String gender, Long age, String classTeach, Card card) {
         this.name = name;
         this.gender = gender;
         this.age = age;
         this.classTeach = classTeach;
+        this.card = card;
     }
 
     public TeacherResponse toResponse() {
+        if(card == null) {
+            return  new TeacherResponse(id, name, gender, age, classTeach, null);
+        }
         return new TeacherResponse(
                 id,
                 name,
                 gender,
                 age,
-                classTeach
+                classTeach,
+                card.toResponse()
         );
     }
 
