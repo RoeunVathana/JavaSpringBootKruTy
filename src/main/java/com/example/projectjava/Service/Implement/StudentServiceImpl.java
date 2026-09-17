@@ -9,6 +9,8 @@ import com.example.projectjava.Service.StudentService;
 import com.example.projectjava.exception.CustomException;
 import jakarta.persistence.criteria.Predicate;
 import lombok.AllArgsConstructor;
+import org.modelmapper.ModelMapper;
+import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -40,6 +42,8 @@ public class StudentServiceImpl implements StudentService {
 
     @Override
     public StudentResponse create(StudentRequest request) {
+        ModelMapper mapper = new ModelMapper();
+        mapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         if (request.getCardRequest() == null) {
             throw new CustomException(HttpStatus.BAD_REQUEST, "Card is required");
         }
@@ -100,31 +104,18 @@ public class StudentServiceImpl implements StudentService {
             String name,
             Sort.Direction direction
     ) {
-        Sort sort = Sort.by(direction, "id")
-                .and(Sort.by(direction, "name"));
-
-        PageRequest pageable = PageRequest.of(
-                page - 1,
-                size,
-                sort
-        );
-
+        ModelMapper mapper = new ModelMapper();
+        mapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        Sort sort = Sort.by(direction, "id").and(Sort.by(direction, "name"));
+        PageRequest pageable = PageRequest.of(page - 1, size, sort);
         return studentRepository.findAll((root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
-
             if (StringUtils.hasText(name)) {
                 String keyword = "%" + name.trim().toLowerCase() + "%";
-
-                predicates.add(
-                        cb.like(
-                                cb.lower(root.get("name")),
-                                keyword
-                        )
-                );
+                predicates.add( cb.like(cb.lower(root.get("name")), keyword));
             }
-
             return cb.and(predicates.toArray(new Predicate[0]));
 
-        }, pageable).map(Student::toResponse);
+        }, pageable).map(src -> mapper.map(src, StudentResponse.class));
     }
 }
