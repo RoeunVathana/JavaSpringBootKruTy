@@ -28,6 +28,9 @@ public class Student {
     //owner side of the relationship
     private Card card;
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    private Major major;
+
     public Student( String name, String gender, Integer age, Card card) {
         this.name = name;
         this.gender = gender;
@@ -35,10 +38,10 @@ public class Student {
         this.card = card;
     }
 
-    public StudentResponse toResponse(){
-        if (card == null) {
-            return new StudentResponse(id, name, gender, age, null);
-        }
-        return new StudentResponse(id, name, gender, age, card.toResponse());
-    }
+//    public StudentResponse toResponse(){
+//        if (card == null) {
+//            return new StudentResponse(id, name, gender, age, null);
+//        }
+//        return new StudentResponse(id, name, gender, age, card.toResponse());
+//    }
 }

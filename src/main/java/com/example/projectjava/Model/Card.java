@@ -40,7 +40,7 @@ public class Card {
     }
 
 
-    public CardResponse toResponse() {
-        return new CardResponse(id, issueDate, expiryDate, code);
-    }
+//    public CardResponse toResponse() {
+//        return new CardResponse(id, issueDate, expiryDate, code);
+//    }
 }

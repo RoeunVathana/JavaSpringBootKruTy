@@ -7,11 +7,14 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class MapperConfig {
+
     @Bean
     public ModelMapper modelMapper() {
-
         ModelMapper mapper = new ModelMapper();
-        mapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+
+        mapper.getConfiguration()
+                .setMatchingStrategy(MatchingStrategies.STRICT);
+
         return mapper;
     }
 }

@@ -36,18 +36,18 @@ public class Teacher {
         this.card = card;
     }
 
-    public TeacherResponse toResponse() {
-        if(card == null) {
-            return  new TeacherResponse(id, name, gender, age, classTeach, null);
-        }
-        return new TeacherResponse(
-                id,
-                name,
-                gender,
-                age,
-                classTeach,
-                card.toResponse()
-        );
-    }
+//    public TeacherResponse toResponse() {
+//        if(card == null) {
+//            return  new TeacherResponse(id, name, gender, age, classTeach, null);
+//        }
+//        return new TeacherResponse(
+//                id,
+//                name,
+//                gender,
+//                age,
+//                classTeach,
+//                card.toResponse()
+//        );
+//    }
 
 }

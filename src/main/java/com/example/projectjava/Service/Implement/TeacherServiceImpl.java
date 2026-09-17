@@ -24,10 +24,9 @@ import java.util.UUID;
 import jakarta.persistence.criteria.Predicate;
 
 @Service
-@AllArgsConstructor
 @RequiredArgsConstructor
 public class TeacherServiceImpl implements TeacherService {
-    private TeacherRepository teacherRepository;
+    private final TeacherRepository teacherRepository;
     private ModelMapper mapper;
 
 //    public TeacherServiceImpl(TeacherRepository teacherRepository) {
@@ -37,7 +36,11 @@ public class TeacherServiceImpl implements TeacherService {
     @Override
     public List<TeacherResponse> list() {
         Sort sort = Sort.by(Sort.Direction.DESC, "id");
-        return teacherRepository.findAll(sort).stream().map(Teacher::toResponse).toList();
+//        return teacherRepository.findAll(sort).stream().map(Teacher::toResponse).toList();
+        return teacherRepository.findAll(sort)
+                .stream()
+                .map(src -> mapper.map(src, TeacherResponse.class))
+                .toList();
     }
 
     @Override

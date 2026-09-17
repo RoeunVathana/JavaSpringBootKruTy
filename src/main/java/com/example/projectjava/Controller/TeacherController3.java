@@ -40,7 +40,7 @@ public class TeacherController3 {
 
     @GetMapping
     public ResponseEntity<SuccessResponse> getAll(
-            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(required = false) String name,
             @RequestParam(defaultValue = "DESC") Sort.Direction direction

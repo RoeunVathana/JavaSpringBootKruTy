@@ -3,15 +3,15 @@ package com.example.projectjava.Service.Implement;
 import com.example.projectjava.DTO.StudentRequest;
 import com.example.projectjava.DTO.StudentResponse;
 import com.example.projectjava.Model.Card;
+import com.example.projectjava.Model.Major;
 import com.example.projectjava.Model.Student;
+import com.example.projectjava.Repository.MajorRepository;
 import com.example.projectjava.Repository.StudentRepository;
 import com.example.projectjava.Service.StudentService;
 import com.example.projectjava.exception.CustomException;
 import jakarta.persistence.criteria.Predicate;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -23,14 +23,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-
 @Service
 @RequiredArgsConstructor
-//@AllArgsConstructor
 public class StudentServiceImpl implements StudentService {
-    private StudentRepository studentRepository;
-    private ModelMapper mapper;
 
+    private final StudentRepository studentRepository;
+    private final MajorRepository majorRepository;
+    private ModelMapper mapper;
 
 //    public StudentServiceImpl(StudentRepository studentRepository) {
 //        this.studentRepository = studentRepository;
@@ -39,7 +38,11 @@ public class StudentServiceImpl implements StudentService {
     @Override
     public List<StudentResponse> list() {
         Sort sort = Sort.by(Sort.Direction.DESC, "id");
-        return studentRepository.findAll(sort).stream().map(Student::toResponse).toList();
+//        return studentRepository.findAll(sort).stream().map(Student::toResponse).toList();
+        return studentRepository.findAll(sort)
+                .stream()
+                .map(src -> mapper.map(src, StudentResponse.class))
+                .toList();
     }
 
     @Override
@@ -50,15 +53,28 @@ public class StudentServiceImpl implements StudentService {
             throw new CustomException(HttpStatus.BAD_REQUEST, "Card is required");
         }
 
+        Major major = majorRepository.findById(request.getMajorId())
+                .orElseThrow(() -> new CustomException(
+                        HttpStatus.NOT_FOUND,
+                        "Major not found"
+                ));
+
         String code = UUID.randomUUID()
                 .toString()
                 .replace("-", "")
                 .substring(0, 12);
 
         Student student = mapper.map(request, Student.class);
-        student.getCard().setCode(code);
 
-        return mapper.map(studentRepository.save(student), StudentResponse.class);
+        Card card = mapper.map(request.getCard(), Card.class);
+        card.setCode(code);
+
+        student.setCard(card);
+        student.setMajor(major);
+
+        Student savedStudent = studentRepository.save(student);
+
+        return mapper.map(savedStudent, StudentResponse.class);
 //        return studentRepository.save(student)
 //        Student studentRe = request.toEntity(code);
 //        return studentRepository.save(student).toResponse();

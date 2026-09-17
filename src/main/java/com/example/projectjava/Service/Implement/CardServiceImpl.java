@@ -6,6 +6,8 @@ import com.example.projectjava.Repository.CardRepository;
 import com.example.projectjava.Service.CardService;
 import jakarta.persistence.criteria.Predicate;
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -14,12 +16,12 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 
-@AllArgsConstructor
+@RequiredArgsConstructor
 @Service
 public class CardServiceImpl implements CardService {
 
-    private  final CardRepository cardRepository;
-
+    private final CardRepository cardRepository;
+    private ModelMapper modelMapper;
 
 
     @Override
@@ -28,6 +30,6 @@ public class CardServiceImpl implements CardService {
         return cardRepository.findAll((root, query, cb)->{
             List<Predicate>  predicates = new ArrayList<>();
            return cb.and(predicates.toArray(new Predicate[0]));
-        }, pageable).map(Card::toResponse);
+        }, pageable).map(src->modelMapper.map(src,CardResponse.class));
     }
 }
