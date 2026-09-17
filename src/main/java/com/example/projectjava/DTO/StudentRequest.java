@@ -25,10 +25,10 @@ public class StudentRequest {
 
     @Valid
     @NotNull(message = "Card is required")
-    private CardRequest cardRequest;
+    private CardRequest card;
 
     public Student toEntity(String code) {
-        Card card = new Card(cardRequest.getIssueDate(), cardRequest.getExpiryDate(), code);
+        Card card = new Card(this.card.getIssueDate(), this.card.getExpiryDate(), code);
         Student student = new Student(name, gender, age, card);
         card.setStudent(student);
         return student;

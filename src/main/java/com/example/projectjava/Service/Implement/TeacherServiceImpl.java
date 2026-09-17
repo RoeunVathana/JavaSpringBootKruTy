@@ -7,6 +7,7 @@ import com.example.projectjava.Repository.TeacherRepository;
 import com.example.projectjava.Service.TeacherService;
 import com.example.projectjava.exception.CustomException;
 import lombok.*;
+import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -24,8 +25,10 @@ import jakarta.persistence.criteria.Predicate;
 
 @Service
 @AllArgsConstructor
+@RequiredArgsConstructor
 public class TeacherServiceImpl implements TeacherService {
-    private final TeacherRepository teacherRepository;
+    private TeacherRepository teacherRepository;
+    private ModelMapper mapper;
 
 //    public TeacherServiceImpl(TeacherRepository teacherRepository) {
 //        this.teacherRepository = teacherRepository;
@@ -39,8 +42,9 @@ public class TeacherServiceImpl implements TeacherService {
 
     @Override
     public TeacherResponse listOne(int id) {
-        Teacher teacher = teacherRepository.findById((long) id).orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, "Teacher not found"));
-        return teacher.toResponse();
+        return teacherRepository.findById((long) id)
+                .map(src-> mapper.map(src, TeacherResponse.class))
+                .orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, "Teacher not found"));
     }
 
     @Override
@@ -55,7 +59,7 @@ public class TeacherServiceImpl implements TeacherService {
                 predicates.add(cb.like(cb.lower(root.get("name")), "%" + name.trim().toLowerCase() + "%"));
             }
             return cb.and(predicates.toArray(new Predicate[0]));
-        }, pageable).map(Teacher::toResponse);
+        }, pageable).map(src -> mapper.map(src, TeacherResponse.class));
 //        if(StringUtils.hasText(name)){
 //            return teacherRepository.searchTeacherByNameContainingIgnoreCase(name, pageable).map(Teacher::toResponse);
 //        }
@@ -65,29 +69,32 @@ public class TeacherServiceImpl implements TeacherService {
 
     @Override
     public TeacherResponse create(TeacherRequest teacherRequest) {
-        if(teacherRequest.getCardRequest() == null){
+        if(teacherRequest.getCard() == null){
             throw  new CustomException(HttpStatus.BAD_REQUEST, "Card is required");
         }
 
         String code = UUID.randomUUID().toString()
                 .replace("-", "")
                 .substring(0, 12);
-        Teacher teacher = teacherRequest.toEntity(code);
-        return teacherRepository.save(teacher).toResponse();
-
-
+        Teacher teacher = mapper.map(teacherRequest, Teacher.class);
+        teacher.getCard().setCode(code);
+        return mapper.map(teacherRepository.save(teacher), TeacherResponse.class);
+//        Teacher teacher = teacherRequest.toEntity(code);
+//        return teacherRepository.save(teacher).toResponse();
     }
 
     @Override
     public TeacherResponse update(TeacherRequest teacherRequest, Long id) {
         Teacher teacher = teacherRepository.findById((long) Math.toIntExact(id)).orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, "Teacher not found"));
-        teacher.setName(teacherRequest.getName());
-        teacher.setGender(teacherRequest.getGender());
-        teacher.setAge(teacherRequest.getAge());
-        teacher.setClassTeach(teacherRequest.getClassTeach());
-        teacher.getCard().setExpiryDate(teacherRequest.getCardRequest().getExpiryDate());
-        teacher.getCard().setIssueDate(teacherRequest.getCardRequest().getIssueDate());
-        return teacherRepository.save(teacher).toResponse();
+//        teacher.setName(teacherRequest.getName());
+//        teacher.setGender(teacherRequest.getGender());
+//        teacher.setAge(teacherRequest.getAge());
+//        teacher.setClassTeach(teacherRequest.getClassTeach());
+//        teacher.getCard().setExpiryDate(teacherRequest.getCard().getExpiryDate());
+//        teacher.getCard().setIssueDate(teacherRequest.getCard().getIssueDate());
+//        return teacherRepository.save(teacher).toResponse();
+        mapper.map(teacherRequest, teacher);
+        return mapper.map(teacherRepository.save(teacher), TeacherResponse.class);
     }
 
     @Override

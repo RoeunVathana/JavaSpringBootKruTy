@@ -9,6 +9,7 @@ import com.example.projectjava.Service.StudentService;
 import com.example.projectjava.exception.CustomException;
 import jakarta.persistence.criteria.Predicate;
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.data.domain.Page;
@@ -24,10 +25,11 @@ import java.util.UUID;
 
 
 @Service
-//@RequiredArgsConstructor
-@AllArgsConstructor
+@RequiredArgsConstructor
+//@AllArgsConstructor
 public class StudentServiceImpl implements StudentService {
     private StudentRepository studentRepository;
+    private ModelMapper mapper;
 
 
 //    public StudentServiceImpl(StudentRepository studentRepository) {
@@ -42,9 +44,9 @@ public class StudentServiceImpl implements StudentService {
 
     @Override
     public StudentResponse create(StudentRequest request) {
-        ModelMapper mapper = new ModelMapper();
-        mapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-        if (request.getCardRequest() == null) {
+//        ModelMapper mapper = new ModelMapper();
+//        mapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        if (request.getCard() == null) {
             throw new CustomException(HttpStatus.BAD_REQUEST, "Card is required");
         }
 
@@ -53,18 +55,27 @@ public class StudentServiceImpl implements StudentService {
                 .replace("-", "")
                 .substring(0, 12);
 
-        Student student = request.toEntity(code);
-        return studentRepository.save(student).toResponse();
+        Student student = mapper.map(request, Student.class);
+        student.getCard().setCode(code);
+
+        return mapper.map(studentRepository.save(student), StudentResponse.class);
+//        return studentRepository.save(student)
+//        Student studentRe = request.toEntity(code);
+//        return studentRepository.save(student).toResponse();
+//        return studentRepository.save(studentRe).toResponse();
+
     }
 
     @Override
     public StudentResponse update(StudentRequest studentRequest, long id) {
         Student stuUp = studentRepository.findById(id).orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, "Student not found"));
-        stuUp.setName(studentRequest.getName());
-        stuUp.setAge(studentRequest.getAge());
-        stuUp.setGender(studentRequest.getGender());
-        stuUp.getCard().setIssueDate(studentRequest.getCardRequest().getIssueDate());
-        stuUp.getCard().setExpiryDate(studentRequest.getCardRequest().getExpiryDate());
+//        ModelMapper mapper = new ModelMapper();
+//        mapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STANDARD);
+//        stuUp.setName(studentRequest.getName());
+//        stuUp.setAge(studentRequest.getAge());
+//        stuUp.setGender(studentRequest.getGender());
+//        stuUp.getCard().setIssueDate(studentRequest.getCard().getIssueDate());
+//        stuUp.getCard().setExpiryDate(studentRequest.getCard().getExpiryDate());
 //        if (studentRequest.getCardRequest() != null) {
 //            String code = stuUp.getCard() != null ? stuUp.getCard().getCode() : UUID.randomUUID().toString().replace("-", "").substring(0, 12);
 //            Card card = new Card(
@@ -76,7 +87,10 @@ public class StudentServiceImpl implements StudentService {
 //            card.setStudent(stuUp);
 //        }
 
-        return studentRepository.save(stuUp).toResponse();
+        mapper.map(studentRequest, stuUp);
+        return mapper.map(studentRepository.save(stuUp), StudentResponse.class);
+
+//        return studentRepository.save(stuUp).toResponse();
     }
 
     @Override
@@ -94,7 +108,9 @@ public class StudentServiceImpl implements StudentService {
 
     @Override
     public StudentResponse listOne(long id) {
-        return studentRepository.findById(id).orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, "Student Not Found!")).toResponse();
+        return studentRepository.findById(id)
+                .map(src -> mapper.map(src, StudentResponse.class))
+                .orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, "Student not found"));
     }
 
     @Override
@@ -104,8 +120,8 @@ public class StudentServiceImpl implements StudentService {
             String name,
             Sort.Direction direction
     ) {
-        ModelMapper mapper = new ModelMapper();
-        mapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+//        ModelMapper mapper = new ModelMapper();
+//        mapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         Sort sort = Sort.by(direction, "id").and(Sort.by(direction, "name"));
         PageRequest pageable = PageRequest.of(page - 1, size, sort);
         return studentRepository.findAll((root, query, cb) -> {
@@ -117,5 +133,6 @@ public class StudentServiceImpl implements StudentService {
             return cb.and(predicates.toArray(new Predicate[0]));
 
         }, pageable).map(src -> mapper.map(src, StudentResponse.class));
+//                    map(Student::toResponse)
     }
 }
