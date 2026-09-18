@@ -66,8 +66,8 @@ public class StudentServiceImpl implements StudentService {
         card.setCode(code);
         student.setCard(card);
         student.setMajor(major);
-        Student savedStudent = studentRepository.save(student);
-        return mapper.map(savedStudent, StudentResponse.class);
+//        Student savedStudent = studentRepository.save(student);
+        return mapper.map(studentRepository.save(student), StudentResponse.class);
 //        return studentRepository.save(student)
 //        Student studentRe = request.toEntity(code);
 //        return studentRepository.save(student).toResponse();

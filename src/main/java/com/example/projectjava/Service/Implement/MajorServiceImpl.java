@@ -2,6 +2,7 @@ package com.example.projectjava.Service.Implement;
 
 import com.example.projectjava.DTO.MajorRequest;
 import com.example.projectjava.DTO.MajorResponse;
+import com.example.projectjava.DTO.StudentResponse;
 import com.example.projectjava.Model.Major;
 import com.example.projectjava.Repository.MajorRepository;
 import com.example.projectjava.Service.MajorService;
@@ -29,19 +30,48 @@ public class MajorServiceImpl implements MajorService {
     private final ModelMapper mapper;
 
     @Override
-    public Page<MajorResponse> list(int page, int size, Sort.Direction direction) {
+    public Page<MajorResponse> list(
+            int page,
+            int size,
+            Sort.Direction direction
+    ) {
 
         Pageable pageable = PageRequest.of(
-                page - 1,size,Sort.by(direction, "name")
+                page - 1,
+                size,
+                Sort.by(direction, "name")
         );
 
         return majorRepository.findAll((root, query, cb) -> {
 
             List<Predicate> predicateList = new ArrayList<>();
 
-            return cb.and( predicateList.toArray(new Predicate[0]));
+            return cb.and(
+                    predicateList.toArray(new Predicate[0])
+            );
 
-        }, pageable).map(src ->mapper.map(src, MajorResponse.class) );
+        }, pageable).map(src -> {
+
+            MajorResponse response =
+                    mapper.map(src, MajorResponse.class);
+
+            if (src.getStudents() != null) {
+
+                response.setStudentResponse(
+                        src.getStudents()
+                                .stream()
+                                .map(student ->
+                                        mapper.map(
+                                                student,
+                                                StudentResponse.class
+                                        )
+                                )
+                                .toList()
+                );
+            }
+
+            return response;
+        });
     }
 
     @Override

@@ -28,7 +28,7 @@ public class Student {
     //owner side of the relationship
     private Card card;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private Major major;
 
     public Student( String name, String gender, Integer age, Card card) {
