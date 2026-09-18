@@ -29,7 +29,7 @@ public class StudentServiceImpl implements StudentService {
 
     private final StudentRepository studentRepository;
     private final MajorRepository majorRepository;
-    private ModelMapper mapper;
+    private final ModelMapper mapper;
 
 //    public StudentServiceImpl(StudentRepository studentRepository) {
 //        this.studentRepository = studentRepository;
@@ -52,28 +52,21 @@ public class StudentServiceImpl implements StudentService {
         if (request.getCard() == null) {
             throw new CustomException(HttpStatus.BAD_REQUEST, "Card is required");
         }
-
         Major major = majorRepository.findById(request.getMajorId())
                 .orElseThrow(() -> new CustomException(
                         HttpStatus.NOT_FOUND,
                         "Major not found"
                 ));
-
         String code = UUID.randomUUID()
                 .toString()
                 .replace("-", "")
                 .substring(0, 12);
-
         Student student = mapper.map(request, Student.class);
-
         Card card = mapper.map(request.getCard(), Card.class);
         card.setCode(code);
-
         student.setCard(card);
         student.setMajor(major);
-
         Student savedStudent = studentRepository.save(student);
-
         return mapper.map(savedStudent, StudentResponse.class);
 //        return studentRepository.save(student)
 //        Student studentRe = request.toEntity(code);
@@ -84,7 +77,23 @@ public class StudentServiceImpl implements StudentService {
 
     @Override
     public StudentResponse update(StudentRequest studentRequest, long id) {
-        Student stuUp = studentRepository.findById(id).orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, "Student not found"));
+        Student stuUp = studentRepository.findById(id)
+                .orElseThrow(() -> new CustomException(
+                        HttpStatus.NOT_FOUND,
+                        "Student not found"
+                ));
+        Major major = majorRepository.findById(studentRequest.getMajorId())
+                .orElseThrow(() -> new CustomException(
+                        HttpStatus.NOT_FOUND,
+                        "Major not found"
+                ));
+        // Update student fields
+        mapper.map(studentRequest, stuUp);
+        // Set the new Major
+        stuUp.setMajor(major);
+        Student savedStudent = studentRepository.save(stuUp);
+        return mapper.map(savedStudent, StudentResponse.class);
+
 //        ModelMapper mapper = new ModelMapper();
 //        mapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STANDARD);
 //        stuUp.setName(studentRequest.getName());
@@ -102,10 +111,6 @@ public class StudentServiceImpl implements StudentService {
 //            stuUp.setCard(card);
 //            card.setStudent(stuUp);
 //        }
-
-        mapper.map(studentRequest, stuUp);
-        return mapper.map(studentRepository.save(stuUp), StudentResponse.class);
-
 //        return studentRepository.save(stuUp).toResponse();
     }
 

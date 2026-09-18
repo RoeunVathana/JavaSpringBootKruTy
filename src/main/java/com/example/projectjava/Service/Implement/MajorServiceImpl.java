@@ -26,7 +26,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class MajorServiceImpl implements MajorService {
     private  final MajorRepository majorRepository;
-    private ModelMapper mapper;
+    private final ModelMapper mapper;
 
     @Override
     public Page<MajorResponse> list(int page, int size, Sort.Direction direction) {

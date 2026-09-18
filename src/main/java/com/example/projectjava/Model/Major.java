@@ -24,6 +24,6 @@ public class Major {
     @Column(columnDefinition = "text")
     private String description;
 
-    @OneToMany(mappedBy = "major", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "major", fetch = FetchType.EAGER)
     private List<Student> students;
 }

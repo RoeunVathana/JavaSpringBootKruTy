@@ -27,7 +27,7 @@ import jakarta.persistence.criteria.Predicate;
 @RequiredArgsConstructor
 public class TeacherServiceImpl implements TeacherService {
     private final TeacherRepository teacherRepository;
-    private ModelMapper mapper;
+    private final ModelMapper mapper;
 
 //    public TeacherServiceImpl(TeacherRepository teacherRepository) {
 //        this.teacherRepository = teacherRepository;

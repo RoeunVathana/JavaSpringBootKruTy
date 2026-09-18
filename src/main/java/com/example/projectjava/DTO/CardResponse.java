@@ -6,9 +6,10 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 
+
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
 public class CardResponse {
     private Long id;
     private LocalDate issueDate;

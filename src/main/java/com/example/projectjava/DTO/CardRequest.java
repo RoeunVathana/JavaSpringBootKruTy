@@ -7,9 +7,10 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 
+
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
 public class CardRequest {
     @NotNull(message = "issue date is not null")
     private LocalDate issueDate;
