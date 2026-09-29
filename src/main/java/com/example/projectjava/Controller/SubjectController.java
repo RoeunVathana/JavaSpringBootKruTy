@@ -62,8 +62,9 @@ public class SubjectController {
 
     @DeleteMapping("/{id}")
     public  ResponseEntity<SuccessResponse<Void>> delete(@PathVariable Long id){
+        subjectService.delete(id);
         return ResponseEntity.ok(
-                ApiResponseUtil.success(HttpStatus.OK, subjectService.delete(id))
+                ApiResponseUtil.success(HttpStatus.NO_CONTENT)
         );
     }
 

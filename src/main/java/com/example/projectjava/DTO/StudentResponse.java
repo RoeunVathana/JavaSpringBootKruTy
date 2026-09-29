@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
+
 @Setter
 @Getter
 @NoArgsConstructor
@@ -16,6 +18,7 @@ public class StudentResponse {
     private int age;
     private CardResponse card;
     private MajorResponse major;
+    private List<SubjectResponse> subjects;
 
 //    public StudentResponse(Long id, String name, String gender, int age,  CardResponse card) {
 //        this.id = id;

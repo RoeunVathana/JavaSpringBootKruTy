@@ -5,8 +5,10 @@ import com.example.projectjava.DTO.StudentResponse;
 import com.example.projectjava.Model.Card;
 import com.example.projectjava.Model.Major;
 import com.example.projectjava.Model.Student;
+import com.example.projectjava.Model.Subject;
 import com.example.projectjava.Repository.MajorRepository;
 import com.example.projectjava.Repository.StudentRepository;
+import com.example.projectjava.Repository.SubjectRepository;
 import com.example.projectjava.Service.StudentService;
 import com.example.projectjava.exception.CustomException;
 import jakarta.persistence.criteria.Predicate;
@@ -30,6 +32,7 @@ public class StudentServiceImpl implements StudentService {
     private final StudentRepository studentRepository;
     private final MajorRepository majorRepository;
     private final ModelMapper mapper;
+    private final SubjectRepository subjectRepository;
 
 //    public StudentServiceImpl(StudentRepository studentRepository) {
 //        this.studentRepository = studentRepository;
@@ -49,6 +52,8 @@ public class StudentServiceImpl implements StudentService {
     public StudentResponse create(StudentRequest request) {
 //        ModelMapper mapper = new ModelMapper();
 //        mapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        List<Subject> subjects = subjectRepository.findAllById(request.getSubjectId());
+
         if (request.getCard() == null) {
             throw new CustomException(HttpStatus.BAD_REQUEST, "Card is required");
         }
@@ -66,6 +71,7 @@ public class StudentServiceImpl implements StudentService {
         card.setCode(code);
         student.setCard(card);
         student.setMajor(major);
+        student.setSubjects(subjects);
 //        Student savedStudent = studentRepository.save(student);
         return mapper.map(studentRepository.save(student), StudentResponse.class);
 //        return studentRepository.save(student)
@@ -87,10 +93,13 @@ public class StudentServiceImpl implements StudentService {
                         HttpStatus.NOT_FOUND,
                         "Major not found"
                 ));
+        List<Subject> subject = subjectRepository.findAllById(studentRequest.getSubjectId());
+
         // Update student fields
         mapper.map(studentRequest, stuUp);
         // Set the new Major
         stuUp.setMajor(major);
+        stuUp.setSubjects(subject);
         Student savedStudent = studentRepository.save(stuUp);
         return mapper.map(savedStudent, StudentResponse.class);
 

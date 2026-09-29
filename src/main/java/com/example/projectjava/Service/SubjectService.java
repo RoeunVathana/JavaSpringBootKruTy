@@ -21,6 +21,5 @@ public interface SubjectService {
     SubjectResponse getById(Long id);
 
     SubjectResponse update(@Valid SubjectRequest request, @Valid Long id);
-
-    Void delete(Long id);
+    void delete(Long id);
 }

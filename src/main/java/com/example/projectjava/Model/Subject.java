@@ -7,6 +7,9 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.apache.catalina.User;
+
+import java.util.List;
 
 @Setter
 @Getter
@@ -25,6 +28,9 @@ public class Subject {
 
     @Column(columnDefinition = "text")
     private String description;
+
+    @ManyToMany(mappedBy = "subjects", fetch = FetchType.LAZY)
+    private List<Student> students;
 
 }
 

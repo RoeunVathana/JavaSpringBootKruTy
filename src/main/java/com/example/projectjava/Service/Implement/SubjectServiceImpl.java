@@ -103,7 +103,10 @@ public class SubjectServiceImpl implements SubjectService {
     }
 
     @Override
-    public Void delete(Long id) {
-        return null;
+    public void delete(Long id) {
+        Subject subject = subjectRepository.findById(id).orElseThrow(
+                () -> new CustomException(HttpStatus.NOT_FOUND, "Subject is not found!")
+        );
+        subjectRepository.delete(subject);
     }
 }

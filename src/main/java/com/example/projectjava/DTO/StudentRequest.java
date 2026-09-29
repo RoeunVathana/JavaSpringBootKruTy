@@ -9,6 +9,8 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+
 @Getter
 @Setter
 public class StudentRequest {
@@ -25,6 +27,9 @@ public class StudentRequest {
 
     @NotNull(message = "Major id is Required!")
     private Long majorId;
+
+    @NotNull(message = "Subject id is required")
+    private List<Long> subjectId;
 
     @Valid
     @NotNull(message = "Card is required")
